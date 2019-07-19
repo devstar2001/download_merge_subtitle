@@ -1,0 +1,144 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <title>YTVDownloader</title>
+</head>
+<body>
+<div class="container-fluid">
+    {% block content %}
+
+    {% endblock %}
+
+</div>
+
+<script src="{% static 'js/jquery-3.3.1.min.js' %}"></script>
+<script src="{% static 'js/js.cookie.min.js' %}"></script>
+<script src="{% static 'js/bootstrap.js' %}"></script>
+<script src="{% static 'js/popper.js' %}"></script>
+<script src="{% static 'js/main.js' %}"></script>
+<script type="application/javascript">
+
+            var cookies = window.Cookies.get();
+            var csrftoken = cookies['csrftoken'];
+            var job_id = '';
+            var lang_id = ''
+            var merge_id = ''
+            var status_id = ''
+            var itag = ''
+            var video_url = '{{ video_url }}'
+            var lang = ''
+            var time_out = 5000;
+            var myVar = '';
+            function csrfSafeMethod(method) {
+                // these HTTP methods do not require CSRF protection
+                return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+            }
+
+            $.ajaxSetup({
+                beforeSend: function(xhr, settings) {
+                    if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                        xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                    }
+                }
+            });
+            function merging(m_id, i_tag) {
+                if(itag !== ''){
+                    alert('Task exists');
+                    return
+                }
+                job_id = '';
+                itag = i_tag;
+                lang_id = 'select_lang_' + m_id;
+                merge_id = 'merging_icon_' + m_id;
+                status_id = 'status_' + m_id;
+                console.log(lang_id, itag, '{{ video_url }}');
+                lang = document.getElementById(lang_id).value;
+                console.log(lang);
+                myajax()
+                myVar = setInterval(myajax, time_out);
+
+            }
+
+            function myajax() {
+                var post_data;
+                if(job_id !== ''){
+                    post_data  = {
+                        'job_id': job_id
+                    }
+                }else {
+                    post_data = {
+                    'lang': lang,
+                    'itag': itag,
+                    'video_url': '{{ video_url }}'
+                };
+                }
+
+                $.ajax({
+                    url: '{% url 'merge_download' %}',
+                    method:"POST",
+                    data: post_data,
+                    {% comment %}dataType: 'json',{% endcomment %}
+                    success: function (data) {
+
+                        var element = document.getElementById(merge_id)
+                        var arr = element.className.split(" ");
+                        if (arr.indexOf('fa-spin') === -1) {
+                          element.className += " " + 'fa-spin';
+                        }
+                        console.log(data);
+                        if (data.hasOwnProperty('job_id')){
+                            job_id = data['job_id'];
+                            console.log(data['state']);
+                            if(data['state'] === undefined)
+                            {
+                                data['state'] = 'Ready'
+                            }
+                            document.getElementById(status_id).innerHTML = data['state'];
+                            post_data = {
+                                'job_id':data['job_id']
+                            }
+                            if(data['state'] === 'Failed'){
+                                clearInterval(myVar);
+                                job_id = '';
+                                itag = '';
+                                if (arr.indexOf('fa-spin') > -1) {
+                                    element.classList.remove("fa-spin");
+                                }
+                            }
+                            if(data['state'] === 'SUCCESS'){
+                                clearInterval(myVar);
+                                job_id = '';
+                                itag = '';
+                                if (arr.indexOf('fa-spin') > -1) {
+                                    element.classList.remove("fa-spin");
+                                }
+
+                                if(data.hasOwnProperty('download_url')){
+                                    var link = document.createElement("a");
+                                    {% comment %}link.download = name;{% endcomment %}
+                                    console.log(data['download_url'])
+                                    link.href = data['download_url'];
+                                    link.click();
+                                }
+                            }
+                        }
+
+
+                    }
+
+                  });
+
+
+            }
+
+
+</script>
+
+
+</body>
+</html>

@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+
+    <div class="row">
+        <div class="col-md-12 mb-5">
+            <h1 class="display-2 text-center">YOUTUBE Subtile Merge</h1>
+
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6 ml-auto mr-auto">
+            {% if error_info %}
+                <p>{{ error_info }}</p>
+            {% endif %}
+            <form action="" method="post">
+                {% csrf_token %}
+                {{ form|crispy }}
+                <input type="submit" value="Download" class="btn btn-info btn-block">
+            </form>
+        </div>
+    </div>
+
+    {% if title %}
+        <div class="row">
+            <div class="col-md-6 ml-auto mr-auto mt-5">
+                <h1 class="h3 text-center">{{ title }}</h1>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-4 ml-auto mr-auto mt-5">
+                {% comment %}<img class="img-responsive" src="{{ thumb }}">{% endcomment %}
+            </div>
+
+            <div class="col-md-4 ml-auto mr-auto mt-5 pt-5">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item border-0 pl-2 pr-2 pb-0 text-center" style="background-color: darkslateblue;"><p class="lead">Duration <i class="fa fa-clock-o"></i>: {{ duration }}</p></li>
+                    <li class="list-group-item border-0 pl-2 pr-2 pb-0 text-center" style="background-color: darkslateblue;"><p class="lead">Views <i class="fa fa-eye"></i>: {{ views }}</p></li>
+                    <!--
+                    <li class="list-group-item border-0 pl-2 pr-2 pb-0 text-center" style="background-color: darkslateblue;"><p class="lead">Likes <i class="fa fa-thumbs-up"></i>: {{ likes }} Dislikes <i class="fa fa-thumbs-up"></i>: {{ dislikes }}</p></li>
+                    -->
+                    <li class="list-group-item border-0 pl-2 pr-2 pb-0 text-center" style="background-color: darkslateblue;"><button class="btn btn-info mt-3" data-toggle="collapse" data-target="#description">Description</button></li>
+                </ul>
+                <div id="description" class="collapse">{{ description }}</div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <table class="table mt-5">
+                    <thead class="thead-light">
+                    <tr>
+                        <th scope="col">itag</th>
+                        <th scope="col">Resolution</th>
+
+                        <th scope="col">Extension</th>
+                        <th scope="col">Select Subtitle</th>
+                        <th scope="col">Action</th>
+                        <th scope="col">Status</th>
+
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for stream in streams %}
+                        <tr>
+                            <td>{{ stream.itag }}</td>
+                            <td>{{ stream.resolution }}</td>
+
+                            <td>{{ stream.extension }}</td>
+                            <td>
+                                <select id="select_lang_{{ forloop.counter }}">
+                                    {% for subtitle in subtitle_lang %}
+                                        <option value="{{ subtitle.code }}">{{ subtitle.lang }}</option>
+                                    {% endfor %}
+                                </select>
+                            </td>
+                            <td>
+                                <a href="javascript:merging('{{ forloop.counter }}', '{{ stream.itag }}')"
+                                   style="text-decoration: none;">Merge&Download<i id="merging_icon_{{ forloop.counter }}" class=" fa fa-download"></i></a>
+
+                            </td>
+                            <td>
+                                <p id="status_{{ forloop.counter }}"></p>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    {% endif %}
+{% endblock %}

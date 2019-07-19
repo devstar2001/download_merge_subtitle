@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="550c8c7f-ce3c-41ac-bd72-cf3a44b0803e" name="brandon-ec2-ubuntu" url="http://ec2-13-234-34-237.ap-south-1.compute.amazonaws.com">
+        <fileTransfer host="ec2-13-234-34-237.ap-south-1.compute.amazonaws.com" port="22" privateKey="E:\Doc\clients\bsport.ppk" accessType="SFTP" keyPair="true">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+          <option name="port" value="22" />
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>
