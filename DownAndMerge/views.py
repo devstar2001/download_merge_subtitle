@@ -44,7 +44,8 @@ def list_video(request):
             return render(request, 'home.html', {'error_info': 'Please try again.'})
         title = simplify(yt.title)
         print(title)
-        streams = yt.streams.all()
+        # streams = yt.streams.all()
+        streams = yt.streams.filter(progressive=True).all()
         video_audio_streams = []
         for s in streams:
             # print(s)
@@ -84,6 +85,15 @@ def list_video(request):
     return render(request, 'home.html', { 'form': form })
 
 
+def clean_storage(request):
+    import shutil
+    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    if os.path.exists(BASE_DIR + '/static_files/avi/'):
+        shutil.rmtree(BASE_DIR + '/static_files/avi/')
+    data = {'message':'Ok'}
+    return HttpResponse(json.dumps(data), content_type='application/json')
+
+
 def merge_video(request):
     job_id,video_url, itag, lang = None, None, None, None
     if 'video_url' in request.POST:
@@ -95,6 +105,7 @@ def merge_video(request):
     if 'job_id' in request.POST:
         job_id = request.POST['job_id']
     if job_id is None:
+        # job = merge_subtitle(video_url, itag, lang)
         job = merge_subtitle.delay(video_url, itag, lang)
         job_id = job.id
         send_data = {'job_id': job_id}

@@ -5,7 +5,7 @@
 
     <div class="row">
         <div class="col-md-12 mb-5">
-            <h1 class="display-2 text-center">YOUTUBE Subtile Merge</h1>
+            <h1 class="display-2 text-center">Youtube Subtitle Merge</h1>
 
         </div>
     </div>
@@ -19,6 +19,13 @@
                 {{ form|crispy }}
                 <input type="submit" value="Download" class="btn btn-info btn-block">
             </form>
+
+        </div>
+
+    </div>
+    <div class="row">
+        <div class="col-md-6 mt-3 ml-auto mr-auto">
+            <a href="javascript:cleaning()">Clean Storage</a>
         </div>
     </div>
 
@@ -30,17 +37,20 @@
         </div>
         <div class="row">
             <div class="col-md-4 ml-auto mr-auto mt-5">
-                {% comment %}<img class="img-responsive" src="{{ thumb }}">{% endcomment %}
+                {% comment %}{% if thumb %}
+                    <img class="img-responsive" src="{{ thumb }}">
+
+                {% endif %}{% endcomment %}
             </div>
 
             <div class="col-md-4 ml-auto mr-auto mt-5 pt-5">
                 <ul class="list-group list-group-flush">
-                    <li class="list-group-item border-0 pl-2 pr-2 pb-0 text-center" style="background-color: darkslateblue;"><p class="lead">Duration <i class="fa fa-clock-o"></i>: {{ duration }}</p></li>
-                    <li class="list-group-item border-0 pl-2 pr-2 pb-0 text-center" style="background-color: darkslateblue;"><p class="lead">Views <i class="fa fa-eye"></i>: {{ views }}</p></li>
+                    <li class="list-group-item border-0 pl-2 pr-2 pb-0 text-center" style="background-color: #3d778b;"><p class="lead">Duration <i class="fa fa-clock-o"></i>: {{ duration }}</p></li>
+                    <li class="list-group-item border-0 pl-2 pr-2 pb-0 text-center" style="background-color: #3d778b;"><p class="lead">Views <i class="fa fa-eye"></i>: {{ views }}</p></li>
                     <!--
                     <li class="list-group-item border-0 pl-2 pr-2 pb-0 text-center" style="background-color: darkslateblue;"><p class="lead">Likes <i class="fa fa-thumbs-up"></i>: {{ likes }} Dislikes <i class="fa fa-thumbs-up"></i>: {{ dislikes }}</p></li>
                     -->
-                    <li class="list-group-item border-0 pl-2 pr-2 pb-0 text-center" style="background-color: darkslateblue;"><button class="btn btn-info mt-3" data-toggle="collapse" data-target="#description">Description</button></li>
+                    <li class="list-group-item border-0 pl-2 pr-2 pb-0 text-center" style="background-color: #3d778b;"><button class="btn btn-info mt-3" data-toggle="collapse" data-target="#description">Description</button></li>
                 </ul>
                 <div id="description" class="collapse">{{ description }}</div>
             </div>
@@ -76,11 +86,16 @@
                             </td>
                             <td>
                                 <a href="javascript:merging('{{ forloop.counter }}', '{{ stream.itag }}')"
-                                   style="text-decoration: none;">Merge&Download<i id="merging_icon_{{ forloop.counter }}" class=" fa fa-download"></i></a>
+                                   style="text-decoration: none;">Merge&Download<i id="{{ forloop.counter }}" class=" fa fa-download"></i></a>
 
                             </td>
                             <td>
-                                <p id="status_{{ forloop.counter }}"></p>
+                                <div >
+                                    <i style="display: none" id="merging_icon_{{ forloop.counter }}" class=" fa fa-refresh"></i>
+                                    <div style="display: contents" id="status_{{ forloop.counter }}"></div>
+                                </div>
+
+
                             </td>
                         </tr>
                     {% endfor %}
@@ -88,6 +103,7 @@
                 </table>
             </div>
         </div>
+
 
     {% endif %}
 {% endblock %}

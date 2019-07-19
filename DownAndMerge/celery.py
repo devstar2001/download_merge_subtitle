@@ -5,9 +5,9 @@ from . import settings
 from celery import shared_task
 from celery.schedules import crontab
 # set the default Django settings module for the 'celery' program.
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'YTVDownloader.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'DownAndMerge.settings')
 
-app = Celery('YTVDownloader')
+app = Celery('DownAndMerge')
 
 app.conf.broker_url = 'redis://localhost:6379/0'
 # app.conf.broker_url = 'amqp://localhost'

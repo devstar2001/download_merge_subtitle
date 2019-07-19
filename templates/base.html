@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
     <link rel="stylesheet" href="{% static 'css/main.css' %}">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
-    <title>YTVDownloader</title>
+    <title>YTV_Download_Subtitle_Merge</title>
 </head>
 <body>
 <div class="container-fluid">
@@ -46,6 +46,17 @@
                     }
                 }
             });
+            function cleaning() {
+                $.ajax({
+                    url: '{% url 'clean_storage' %}',
+                    method:"POST",
+                    success: function (data) {
+                        if (data.hasOwnProperty('message')){
+                            alert(data['message']);
+                        }
+                    }
+                });
+            }
             function merging(m_id, i_tag) {
                 if(itag !== ''){
                     alert('Task exists');
@@ -85,7 +96,8 @@
                     {% comment %}dataType: 'json',{% endcomment %}
                     success: function (data) {
 
-                        var element = document.getElementById(merge_id)
+                        var element = document.getElementById(merge_id);
+                        element.style = 'display:';
                         var arr = element.className.split(" ");
                         if (arr.indexOf('fa-spin') === -1) {
                           element.className += " " + 'fa-spin';
@@ -116,14 +128,39 @@
                                 itag = '';
                                 if (arr.indexOf('fa-spin') > -1) {
                                     element.classList.remove("fa-spin");
+                                    element.style = 'display:none';
                                 }
 
                                 if(data.hasOwnProperty('download_url')){
                                     var link = document.createElement("a");
-                                    {% comment %}link.download = name;{% endcomment %}
-                                    console.log(data['download_url'])
-                                    link.href = data['download_url'];
+                                    var url = data['download_url'];
+                                    document.body.appendChild(link);
+                                    link.style = 'display:none';
+                                    link.href = url;
+                                    link.target = '_blank';
+                                    link.download = url.substr(url.lastIndexOf('/') + 1);
                                     link.click();
+                                    window.URL.revokeObjectURL(url)
+                                    /*
+                                    var xhr = new XMLHttpRequest();
+                                    xhr.open("GET", data['download_url']);
+                                    xhr.responseType = "blob";
+                                    xhr.onload = function () {
+                                        var link = document.createElement("a");
+                                        document.body.appendChild(link);
+                                        link.style = 'display:none';
+                                        var res_url = window.URL.createObjectURL(this.response);
+                                        link.href = res_url;
+                                        link.target = '_blank';
+                                        link.download = url.substr(url.lastIndexOf('/') + 1);
+                                        link.click();
+
+                                        window.URL.revokeObjectURL(res_url)
+
+                                    };
+                                    xhr.send();
+                                    * */
+
                                 }
                             }
                         }

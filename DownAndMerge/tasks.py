@@ -3,14 +3,16 @@ from celery import shared_task, current_task
 import logging
 from datetime import datetime
 import os, sys
-from YTVDownloader.celery import app
+from DownAndMerge.celery import app
 from celery.utils.log import get_task_logger, get_logger
 import json
 from pytube import YouTube
 
 def simplify(path):
     # Make sure we get rid of quote characters in file name
-    return path.replace('"', '').replace('\'', '').replace(',', '').replace('|','').replace('.','')
+    return path.replace('"', '').replace('\'', '').replace(',', '').replace('|','').replace('.','')\
+        .replace(' ', '_').replace(':', '')
+
 
 
 @shared_task
@@ -38,30 +40,38 @@ def merge_subtitle(video_url, itag, lang):
         if s.itag == itag:
             res = s.resolution
             ext = s.subtype
-    caption = yt.captions.get_by_language_code(lang)
-    captions = caption.generate_srt_captions()
-    print(captions)
-    with open(title + "_" + lang + '.srt', 'w', encoding="utf-8") as f:
-        f.write(captions)
+    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    print(BASE_DIR)
+    if not os.path.exists(BASE_DIR + '/static_files/avi'):
+        os.mkdir(BASE_DIR + '/static_files/avi')
+    if not lang == '':
+        caption = yt.captions.get_by_language_code(lang)
+        captions = caption.generate_srt_captions()
+        print(captions)
+        with open(BASE_DIR + '/static_files/avi/' + title + "_" + lang + '.srt', 'w', encoding="utf-8") as f:
+            f.write(captions)
 
-    state = progress_info = "Subtitle file created."
-    current_task.update_state(state=state, meta=make_context(progress_info, task_id))
+        state = progress_info = "Subtitle file created."
+        current_task.update_state(state=state, meta=make_context(progress_info, task_id))
     print("downloading start!")
     state = progress_info = "Downloading start."
     print(title + "_" + res)
-    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    if os.path.exists(BASE_DIR + '/' + title + "_" + res):
-        os.remove(title + "_" + res)
-    if not os.path.exists(BASE_DIR + '/static_files/avi'):
-        os.mkdir(BASE_DIR + '/static_files/avi')
+
+    if os.path.exists(BASE_DIR + '/static_files/avi/' + title + "_" + res):
+        os.remove(BASE_DIR + '/static_files/avi/' + title + "_" + res)
+
     current_task.update_state(state=state, meta=make_context(progress_info, task_id))
-    yt.streams.get_by_itag(itag).download(filename=title + "_" + res)
+    yt.streams.get_by_itag(itag).download(BASE_DIR + '/static_files/avi/', filename=title + "_" + res)
     print("downloading done!")
     state = progress_info = "Downloading done."
     current_task.update_state(state=state, meta=make_context(progress_info, task_id))
+    if lang == '':
+        state = progress_info = "COMPLETED"
+        current_task.update_state(state=state, meta=make_context(progress_info, task_id))
+        return title + "_" + res + '.' + ext
     command = 'ffmpeg -i "%s" -vf subtitles="%s"  "%s"'
-    original = title + "_" + res + "." + ext
-    subtitles = title + "_" + lang + ".srt"
+    original = BASE_DIR + '/static_files/avi/' + title + "_" + res + "." + ext
+    subtitles = BASE_DIR + '/static_files/avi/' + title + "_" + lang + ".srt"
 
     merged_filename = title + "_" + res + "_" + lang + ".srt." + "avi"
     merged_path = BASE_DIR + "/static_files/avi/" + merged_filename

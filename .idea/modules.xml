@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/YTVDownloader.iml" filepath="$PROJECT_DIR$/.idea/YTVDownloader.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/Youtube-download-merge-subtitle.iml" filepath="$PROJECT_DIR$/.idea/Youtube-download-merge-subtitle.iml" />
     </modules>
   </component>
 </project>
