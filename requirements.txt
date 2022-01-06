@@ -1,6 +1,6 @@
 amqp==2.5.0
 billiard==3.6.0.0
-celery==4.3.0
+celery==5.2.2
 certifi==2018.10.15
 Django==2.1.10
 django-celery-results==1.1.1
